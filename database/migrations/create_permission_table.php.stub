@@ -1,0 +1,45 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreatePermissionTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        $tableNames = config('acl.table_names');
+
+        if (empty($tableNames))
+        {
+            throw new \Exception('Error: config/acl.php not loaded. Run [php artisan config:clear] and try again.');
+        }
+
+        Schema::create($tableNames['permission'], function (Blueprint $table) {
+            $table->bigIncrements('PERMISSION_CODE');
+            $table->string('PERMISSION_NAME');
+            $table->string('PERMISSION_SLUG');
+            $table->enum('PERMISSION_ACTIVE',['Y','N'])->default('Y');
+            $table->string('PERMISSION_NOTE')->nullable();
+            $table->string('PERMISSION_DESCRIPTION')->nullable();
+            $table->text('PERMISSION_ABILITY');
+            $table->foreignId('PERMISSION_PERMISSION_CODE')->nullable()->constrained(config('acl.table_names')['permission'],'PERMISSION_CODE');
+        });
+     
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop(config('permission.table_names')['permission']);
+    }
+}
